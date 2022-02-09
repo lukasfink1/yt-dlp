@@ -1858,6 +1858,20 @@ class YoutubeDL(object):
                     op = str_op
 
         if not m:
+            str_re_operator_rex = re.compile(r'''(?x)\s*
+                (?P<key>[a-zA-Z0-9._-]+)\s*
+                (?P<negation>!\s*)?\~=(?P<none_inclusive>\s*\?)?\s*
+                (?P<quote>["'])(?P<pattern>[^"']+)(?P=quote)\s*
+                ''')
+            m = str_re_operator_rex.fullmatch(filter_spec)
+            if m:
+                comparison_value = re.compile(m.group('pattern'))
+                if m.group('negation'):
+                    op = lambda attr, pattern: pattern.search(attr) is None
+                else:
+                    op = lambda attr, pattern: pattern.search(attr) is not None
+
+        if not m:
             raise SyntaxError('Invalid filter specification %r' % filter_spec)
 
         def _filter(f):
