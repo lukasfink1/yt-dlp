@@ -1399,7 +1399,7 @@ The following numeric meta fields can be used with comparisons `<`, `<=`, `>`, `
  - `asr`: Audio sampling rate in Hertz
  - `fps`: Frame rate
 
-Also filtering work for comparisons `=` (equals), `^=` (starts with), `$=` (ends with), `*=` (contains) and following string meta fields:
+Also filtering work for comparisons `=` (equals), `^=` (starts with), `$=` (ends with), `*=` (contains), `~="re"` (matches regex) and following string meta fields:
 
  - `ext`: File extension
  - `acodec`: Name of the audio codec in use
@@ -1552,8 +1552,9 @@ $ yt-dlp -S "proto"
 
 
 
-# Download the best video with h264 codec, or the best video if there is no such video
-$ yt-dlp -f "(bv*[vcodec^=avc1]+ba) / (bv*+ba/b)"
+# Download the best video with either h264 or h265 codec,
+# or the best video if there is no such video
+$ yt-dlp -f "(bv*[vcodec~='^((he|a)vc|h26[45])']+ba) / (bv*+ba/b)"
 
 # Download the best video with best codec no better than h264,
 # or the best video with worst codec if there is no such video
