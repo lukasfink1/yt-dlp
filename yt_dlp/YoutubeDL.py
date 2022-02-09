@@ -1819,8 +1819,8 @@ class YoutubeDL(object):
         }
         operator_rex = re.compile(r'''(?x)\s*
             (?P<key>width|height|tbr|abr|vbr|asr|filesize|filesize_approx|fps)\s*
-            (?P<op>%s)(?P<none_inclusive>\s*\?)?\s*
-            (?P<value>[0-9.]+(?:[kKmMgGtTpPeEzZyY]i?[Bb]?)?)\s*
+            (?P<op>%s)\s* (?P<none_inclusive>\?\s*)?
+            (?P<value> [0-9.]+ (?:[kKmMgGtTpPeEzZyY]i?[Bb]?)?)\s*
             ''' % '|'.join(map(re.escape, OPERATORS.keys())))
         m = operator_rex.fullmatch(filter_spec)
         if m:
@@ -1842,34 +1842,26 @@ class YoutubeDL(object):
                 '^=': lambda attr, value: attr.startswith(value),
                 '$=': lambda attr, value: attr.endswith(value),
                 '*=': lambda attr, value: value in attr,
+                '~=': lambda attr, value: value.search(attr) is not None
             }
             str_operator_rex = re.compile(r'''(?x)\s*
                 (?P<key>[a-zA-Z0-9._-]+)\s*
-                (?P<negation>!\s*)?(?P<op>%s)(?P<none_inclusive>\s*\?)?\s*
-                (?P<value>[a-zA-Z0-9._-]+)\s*
+                (?P<negation>!\s*)? (?P<op>%s)\s* (?P<none_inclusive>\?\s*)?
+                (?P<quote>["'])?
+                (?P<value> (?(quote) (?:(?!(?P=quote))[^\\]|\\.)+ | [a-zA-Z0-9._-]+ ))
+                (?(quote) (?P=quote) )\s*
                 ''' % '|'.join(map(re.escape, STR_OPERATORS.keys())))
             m = str_operator_rex.fullmatch(filter_spec)
             if m:
-                comparison_value = m.group('value')
+                if m.group('op') == '~=':
+                    comparison_value = re.compile(m.group('value'))
+                else:
+                    comparison_value = m.group('value')
                 str_op = STR_OPERATORS[m.group('op')]
                 if m.group('negation'):
                     op = lambda attr, value: not str_op(attr, value)
                 else:
                     op = str_op
-
-        if not m:
-            str_re_operator_rex = re.compile(r'''(?x)\s*
-                (?P<key>[a-zA-Z0-9._-]+)\s*
-                (?P<negation>!\s*)?\~=(?P<none_inclusive>\s*\?)?\s*
-                (?P<quote>["'])(?P<pattern>[^"']+)(?P=quote)\s*
-                ''')
-            m = str_re_operator_rex.fullmatch(filter_spec)
-            if m:
-                comparison_value = re.compile(m.group('pattern'))
-                if m.group('negation'):
-                    op = lambda attr, pattern: pattern.search(attr) is None
-                else:
-                    op = lambda attr, pattern: pattern.search(attr) is not None
 
         if not m:
             raise SyntaxError('Invalid filter specification %r' % filter_spec)
