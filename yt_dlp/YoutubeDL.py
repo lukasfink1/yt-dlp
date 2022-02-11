@@ -1846,10 +1846,10 @@ class YoutubeDL(object):
             }
             str_operator_rex = re.compile(r'''(?x)\s*
                 (?P<key>[a-zA-Z0-9._-]+)\s*
-                (?P<negation>!\s*)? (?P<op>%s)\s* (?P<none_inclusive>\?\s*)?
+                (?P<negation>!\s*)?(?P<op>%s)\s*(?P<none_inclusive>\?\s*)?
                 (?P<quote>["'])?
-                (?P<value> (?(quote) (?:(?!(?P=quote))[^\\]|\\.)+ | [a-zA-Z0-9._-]+ ))
-                (?(quote) (?P=quote) )\s*
+                (?P<value>(?(quote)(?:(?!(?P=quote))[^\\]|\\.)+|[\w.-]+))
+                (?(quote)(?P=quote))\s*
                 ''' % '|'.join(map(re.escape, STR_OPERATORS.keys())))
             m = str_operator_rex.fullmatch(filter_spec)
             if m:
