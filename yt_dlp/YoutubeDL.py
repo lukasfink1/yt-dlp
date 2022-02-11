@@ -1856,7 +1856,7 @@ class YoutubeDL(object):
                 if m.group('op') == '~=':
                     comparison_value = re.compile(m.group('value'))
                 else:
-                    comparison_value = m.group('value')
+                    comparison_value = re.sub(r'''\\([\\"'])''', r'\1', m.group('value'))
                 str_op = STR_OPERATORS[m.group('op')]
                 if m.group('negation'):
                     op = lambda attr, value: not str_op(attr, value)
