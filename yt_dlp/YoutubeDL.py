@@ -1819,8 +1819,8 @@ class YoutubeDL(object):
         }
         operator_rex = re.compile(r'''(?x)\s*
             (?P<key>width|height|tbr|abr|vbr|asr|filesize|filesize_approx|fps)\s*
-            (?P<op>%s)\s* (?P<none_inclusive>\?\s*)?
-            (?P<value> [0-9.]+ (?:[kKmMgGtTpPeEzZyY]i?[Bb]?)?)\s*
+            (?P<op>%s)(?P<none_inclusive>\s*\?)?\s*
+            (?P<value>[0-9.]+(?:[kKmMgGtTpPeEzZyY]i?[Bb]?)?)\s*
             ''' % '|'.join(map(re.escape, OPERATORS.keys())))
         m = operator_rex.fullmatch(filter_spec)
         if m:
